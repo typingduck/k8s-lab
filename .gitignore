@@ -1,0 +1,4 @@
+# where vagrant stores the VMs.
+.vagrant
+# some configs optionally created later
+.*-config
