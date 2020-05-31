@@ -10,6 +10,10 @@ MASTER_HOSTNAME='ducky1'
 MASTER_IP="172.17.17.10"
 POD_NETWORK_CIDR="10.10.0.0/16"
 
+# Explicity tell kubelet its IP (otherwise cluster works but kubectl cannot access containers on a node)
+NODE_IP=$(/sbin/ifconfig eth1 | grep -i mask | awk '{print $2}'| cut -f2 -d:)
+sudo sh -c "echo \"KUBELET_EXTRA_ARGS=\\\"--node-ip=${NODE_IP}\\\"\" > /etc/default/kubelet"
+
 # Download kubernetes...
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu 
