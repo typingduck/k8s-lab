@@ -22,12 +22,6 @@ This should set everything up with host `ducky1` as the master. Then to see the 
         ducky2   Ready    <none>   1m     v1.18.3
         ducky3   Ready    <none>   1m     v1.18.3
 
-## How it works
-
-Based on the observation that security is not important on a laptop
-private network test cluster, so the process can be accelerated
-by hardcoding the IPs and certs.
-
 ## Running `kubectl` on host (laptop) machine
 
 Copy over the config from the master VM as follows
