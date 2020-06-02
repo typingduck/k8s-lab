@@ -24,13 +24,9 @@ This should set everything up with host `ducky1` as the master. Then to see the 
 
 ## Running `kubectl` on host (laptop) machine
 
-Copy over the config from the master VM as follows
-
-    > vagrant ssh-config > .ssh-config
-    > scp -F .ssh-config ducky1:.kube/config .kube-config
-
-Then just set the `KUBECONFIG` environment variable before running the command
+The installation script automatically creates a k8s config in `.kube/`.
+Just set the `KUBECONFIG` environment variable before running the command
 (by default kubectl will try use `~/.kube/config`).
 
-    > export KUBECONFIG=`pwd`/.kube-config
+    > export KUBECONFIG=`pwd`/.kube/config
     > kubectl get nodes
