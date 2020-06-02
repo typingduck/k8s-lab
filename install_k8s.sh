@@ -5,15 +5,15 @@
 
 set -uxe
 
-MASTER_HOSTNAME='ducky1'
 MASTER_IP="172.17.17.10"
 POD_NETWORK_CIDR="10.222.0.0/16"  # this needs to match what kube-flannel.yaml has
+NETWORK_INTERFACE="eth1"
 
 # k8s don't like swap
 swapoff -a
 
 # Explicity tell kubelet its IP (otherwise cluster works but kubectl cannot access containers on a node)
-NODE_IP=$(/sbin/ifconfig eth1 | grep -i mask | awk '{print $2}'| cut -f2 -d:)
+NODE_IP=$(/sbin/ifconfig ${NETWORK_INTERFACE} | grep -i mask | awk '{print $2}'| cut -f2 -d:)
 echo "KUBELET_EXTRA_ARGS=\"--node-ip=${NODE_IP}\"" > /etc/default/kubelet
 
 # Download kubernetes...
@@ -31,12 +31,11 @@ apt-mark hold docker-ce kubelet kubeadm kubectl
 
 NODE_JOIN_SCRIPT=/vagrant/.kube/node_join.sh
 
-if [[ $(hostname) == "${MASTER_HOSTNAME}" ]]; then
+if [[ "${NODE_IP}" == "${MASTER_IP}" ]]; then
 	# start the master
 	kubeadm init \
 		--pod-network-cidr=${POD_NETWORK_CIDR} \
-		--apiserver-advertise-address=${MASTER_IP} \
-		--ignore-preflight-errors=NumCPU # ignore the k8s default of min 2 cpus
+		--apiserver-advertise-address=${MASTER_IP}
 	# place kubectl config so both user vagrant on master and host user can run kubectl
 	if [ ! -d "/vagrant" ]; then
 		echo ERROR: expected hypervisor shared folder /vagrant not found 1>&2
