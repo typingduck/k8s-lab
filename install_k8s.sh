@@ -8,7 +8,7 @@ set -uxe
 
 MASTER_HOSTNAME='ducky1'
 MASTER_IP="172.17.17.10"
-POD_NETWORK_CIDR="10.10.0.0/16"
+POD_NETWORK_CIDR="10.222.0.0/16"  # this needs to match what kube-flannel.yaml has
 
 # Explicity tell kubelet its IP (otherwise cluster works but kubectl cannot access containers on a node)
 NODE_IP=$(/sbin/ifconfig eth1 | grep -i mask | awk '{print $2}'| cut -f2 -d:)
@@ -97,7 +97,7 @@ if [[ $(hostname) == "${MASTER_HOSTNAME}" ]]; then
 	cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 	chown -R vagrant:vagrant /home/vagrant/.kube
 	# networking
-	NETWORK_ADDON="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+	NETWORK_ADDON="/vagrant/kube-flannel.yml"
 	sudo -Hu vagrant kubectl apply -f ${NETWORK_ADDON}
 	# add custom token to master
 	kubeadm token create ${TOKEN}
@@ -108,4 +108,3 @@ else
 	   	--discovery-token-ca-cert-hash ${CERT_HASH}
 
 fi
-
