@@ -3,12 +3,14 @@ Quickly set up a 3 node virtual machine based Kubernetes test cluster,
 for example if you wanted a cluster on your laptop.
 
 Useful for developing when minikube's single node cluster is not realistic
-enough and cloud solutions are too heavy. Uses [vagrant](https://www.vagrantup.com/)
-to automate the process and be agnostic to VM host.
+enough and cloud solutions are too heavy. 
+
+## Requirements
+
+* [vagrant](https://www.vagrantup.com/)
+* A suitable hypervisor for vagrant such as virtualbox
 
 ## Deploy
-
-With vagrant and a suitable hypervisor installed...
 
     > cd k8s-lab
     > vagrant up
