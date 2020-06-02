@@ -12,23 +12,23 @@ POD_NETWORK_CIDR="10.10.0.0/16"
 
 # Explicity tell kubelet its IP (otherwise cluster works but kubectl cannot access containers on a node)
 NODE_IP=$(/sbin/ifconfig eth1 | grep -i mask | awk '{print $2}'| cut -f2 -d:)
-sudo sh -c "echo \"KUBELET_EXTRA_ARGS=\\\"--node-ip=${NODE_IP}\\\"\" > /etc/default/kubelet"
+echo "KUBELET_EXTRA_ARGS=\"--node-ip=${NODE_IP}\"" > /etc/default/kubelet
 
 # Download kubernetes...
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu 
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu 
   $(lsb_release -cs) 
   stable"
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat << EOF | tee /etc/apt/sources.list.d/kubernetes.list
   deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF
-sudo apt-get update
-sudo apt-get install -y docker-ce kubelet kubeadm kubectl
-sudo apt-mark hold docker-ce kubelet kubeadm kubectl
+apt-get update
+apt-get install -y docker-ce kubelet kubeadm kubectl
+apt-mark hold docker-ce kubelet kubeadm kubectl
 
 # k8s don't like swap
-sudo swapoff -a
+swapoff -a
 
 # certs and tokens...
 # (Ok in source control as this is only for local private test kubernetes setups).
@@ -83,19 +83,19 @@ CERT_HASH="sha256:e4f586a29f0f0d9eb92aec6165bb1b88c5108cba4dd7a8604e079646f42dfd
 
 if [[ $(hostname) == "${MASTER_HOSTNAME}" ]]; then
 	# use custom certs (k8s will use certs that already exist, otherwise create new)
-	sudo mkdir -p /etc/kubernetes/pki/
-	sudo sh -c "echo \"${CRT}\" > /etc/kubernetes/pki/ca.crt"
-	sudo sh -c "echo \"${KEY}\" > /etc/kubernetes/pki/ca.key"
-	sudo chmod go-r /etc/kubernetes/pki/ca.key
+	mkdir -p /etc/kubernetes/pki/
+	echo "${CRT}" > /etc/kubernetes/pki/ca.crt
+	echo "${KEY}" > /etc/kubernetes/pki/ca.key
+	chmod go-r /etc/kubernetes/pki/ca.key
 	# start the master
-	sudo kubeadm init \
+	kubeadm init \
 		--pod-network-cidr=${POD_NETWORK_CIDR} \
 		--apiserver-advertise-address=${MASTER_IP} \
 		--ignore-preflight-errors=NumCPU # ignore the k8s default of min 2 cpus
 	# files for kubectl (copy these locally if required).
 	mkdir -p /home/vagrant/.kube
-	sudo cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
-	sudo chown -R vagrant:vagrant /home/vagrant/.kube
+	cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+	chown -R vagrant:vagrant /home/vagrant/.kube
 	# networking
 	NETWORK_ADDON="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 	sudo -Hu vagrant kubectl apply -f ${NETWORK_ADDON}
@@ -103,7 +103,7 @@ if [[ $(hostname) == "${MASTER_HOSTNAME}" ]]; then
 	kubeadm token create ${TOKEN}
 else
 	# follower host
-	sudo kubeadm join ${MASTER_IP}:6443 \
+	kubeadm join ${MASTER_IP}:6443 \
 		--token ${TOKEN} \
 	   	--discovery-token-ca-cert-hash ${CERT_HASH}
 
